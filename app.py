@@ -1,15 +1,12 @@
 # Flask entrypoint for Vercel - Vercel looks for a top-level `app` variable.
 import logging
-from pathlib import Path
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, Response, request, jsonify
 
 from analyzer import analyze_password, validate_password_input
+from page import INDEX_HTML   # HTML is stored in page.py, so no templates folder is needed
 
-BASE_DIR = Path(__file__).resolve().parent
-
-# Absolute path so the templates folder is found no matter where Vercel runs the code
-app = Flask(__name__, template_folder=str(BASE_DIR / "templates"))
+app = Flask(__name__)
 
 
 @app.errorhandler(Exception)
@@ -21,13 +18,12 @@ def handle_error(exc):
 
 @app.route("/health")
 def health():
-    # Open /health on your site: if this works, Flask itself is fine
-    return jsonify({"status": "ok", "templates_exist": (BASE_DIR / "templates" / "index.html").exists()})
+    return jsonify({"status": "ok"})
 
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return Response(INDEX_HTML, mimetype="text/html")
 
 
 @app.route("/analyze", methods=["POST"])
